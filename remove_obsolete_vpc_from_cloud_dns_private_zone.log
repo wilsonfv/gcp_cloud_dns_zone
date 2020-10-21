@@ -1,0 +1,142 @@
+
+2020-10-21 13:19:16 CST INFO    display gcloud version
+Google Cloud SDK 305.0.0
+alpha 2020.08.07
+beta 2020.08.07
+bq 2.0.58
+core 2020.08.07
+gsutil 4.52
+Updates are available for some Cloud SDK components.  To install them,
+please run:
+  $ gcloud components update
+2020-10-21 13:19:17 CST INFO    display gcloud config list
+[core]
+account = terraform@gke-eu-1.iam.gserviceaccount.com
+disable_usage_reporting = True
+project = gke-eu-1
+
+Your active configuration is: [default]
+
+2020-10-21 13:19:18 CST INFO    clean up environment
+
+2020-10-21 13:19:23 CST INFO    Display IAM roles assigned to gcp service account
+roles/compute.networkAdmin            serviceAccount:terraform@gke-eu-1.iam.gserviceaccount.com
+roles/dns.admin                       serviceAccount:terraform@gke-eu-1.iam.gserviceaccount.com
+roles/iam.securityReviewer            serviceAccount:terraform@gke-eu-1.iam.gserviceaccount.com
+roles/serviceusage.serviceUsageAdmin  serviceAccount:terraform@gke-eu-1.iam.gserviceaccount.com
+
+2020-10-21 13:19:25 CST INFO    Display enabled APIs
+NAME                                 TITLE
+bigquery.googleapis.com              BigQuery API
+bigquerystorage.googleapis.com       BigQuery Storage API
+cloudbilling.googleapis.com          Cloud Billing API
+cloudkms.googleapis.com              Cloud Key Management Service (KMS) API
+cloudresourcemanager.googleapis.com  Cloud Resource Manager API
+compute.googleapis.com               Compute Engine API
+container.googleapis.com             Kubernetes Engine API
+containerregistry.googleapis.com     Container Registry API
+dns.googleapis.com                   Cloud DNS API
+iam.googleapis.com                   Identity and Access Management (IAM) API
+iamcredentials.googleapis.com        IAM Service Account Credentials API
+iap.googleapis.com                   Cloud Identity-Aware Proxy API
+monitoring.googleapis.com            Cloud Monitoring API
+oslogin.googleapis.com               Cloud OS Login API
+pubsub.googleapis.com                Cloud Pub/Sub API
+serviceusage.googleapis.com          Service Usage API
+storage-api.googleapis.com           Google Cloud Storage JSON API
+vision.googleapis.com                Cloud Vision API
+
+2020-10-21 13:19:28 CST INFO    create 2 VPCs
+Created [https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc1].
+NAME  SUBNET_MODE  BGP_ROUTING_MODE  IPV4_RANGE  GATEWAY_IPV4
+vpc1  CUSTOM       REGIONAL
+
+Instances on this network will not be reachable until firewall rules
+are created. As an example, you can allow all internal traffic between
+instances as well as SSH, RDP, and ICMP by running:
+
+$ gcloud compute firewall-rules create <FIREWALL_NAME> --network vpc1 --allow tcp,udp,icmp --source-ranges <IP_RANGE>
+$ gcloud compute firewall-rules create <FIREWALL_NAME> --network vpc1 --allow tcp:22,tcp:3389,icmp
+
+Created [https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc2].
+NAME  SUBNET_MODE  BGP_ROUTING_MODE  IPV4_RANGE  GATEWAY_IPV4
+vpc2  CUSTOM       REGIONAL
+
+Instances on this network will not be reachable until firewall rules
+are created. As an example, you can allow all internal traffic between
+instances as well as SSH, RDP, and ICMP by running:
+
+$ gcloud compute firewall-rules create <FIREWALL_NAME> --network vpc2 --allow tcp,udp,icmp --source-ranges <IP_RANGE>
+$ gcloud compute firewall-rules create <FIREWALL_NAME> --network vpc2 --allow tcp:22,tcp:3389,icmp
+
+
+2020-10-21 13:19:55 CST INFO    create a Cloud DNS private zone and add 2 VPCs into Cloud DNS private zone
+DEBUG: Running [gcloud.dns.managed-zones.create] with arguments: [--description: "example", --dns-name: "example.", --networks: "['https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc1', 'https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc2']", --project: "gke-eu-1", --verbosity: "debug", --visibility: "private", ZONE_NAME: "example"]
+Created [https://dns.googleapis.com/dns/v1/projects/gke-eu-1/managedZones/example].
+INFO: Display format: "none"
+
+2020-10-21 13:20:00 CST INFO    list vpc
+NAME  SELF_LINK
+vpc1  https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc1
+vpc2  https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc2
+
+2020-10-21 13:20:03 CST INFO    list vpc in Cloud DNS private-access zone
+NAME     DNS_NAME  NETWORK_URL
+example  example.  ['https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc1', 'https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc2']
+
+2020-10-21 13:20:06 CST INFO    remove one VPC
+Deleted [https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc1].
+
+2020-10-21 13:20:24 CST INFO    list vpc
+NAME  SELF_LINK
+vpc2  https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc2
+
+2020-10-21 13:20:26 CST INFO    list vpc in Cloud DNS private-access zone
+NAME     DNS_NAME  NETWORK_URL
+example  example.  ['https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc1', 'https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc2']
+
+2020-10-21 13:20:28 CST INFO    update Cloud DNS private zone to reflect VPC removal changes
+DEBUG: Running [gcloud.dns.managed-zones.update] with arguments: [--networks: "['https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc2']", --project: "gke-eu-1", --verbosity: "debug", ZONE: "example"]
+DEBUG: (gcloud.dns.managed-zones.update) HTTPError 403: Forbidden
+Traceback (most recent call last):
+  File "/Users/junxingmo/google-cloud-sdk/lib/googlecloudsdk/calliope/cli.py", line 983, in Execute
+    resources = calliope_command.Run(cli=self, args=args)
+  File "/Users/junxingmo/google-cloud-sdk/lib/googlecloudsdk/calliope/backend.py", line 808, in Run
+    resources = command_instance.Run(args)
+  File "/Users/junxingmo/google-cloud-sdk/lib/surface/dns/managed_zones/update.py", line 151, in Run
+    reverse_lookup_config=reverse_lookup_config)
+  File "/Users/junxingmo/google-cloud-sdk/lib/surface/dns/managed_zones/update.py", line 76, in _Update
+    **kwargs)
+  File "/Users/junxingmo/google-cloud-sdk/lib/googlecloudsdk/api_lib/dns/managed_zones.py", line 74, in Patch
+    managedZone=zone_ref.Name()))
+  File "/Users/junxingmo/google-cloud-sdk/lib/googlecloudsdk/third_party/apis/dns/v1/dns_v1_client.py", line 387, in Patch
+    config, request, global_params=global_params)
+  File "/Users/junxingmo/google-cloud-sdk/lib/third_party/apitools/base/py/base_api.py", line 731, in _RunMethod
+    return self.ProcessHttpResponse(method_config, http_response, request)
+  File "/Users/junxingmo/google-cloud-sdk/lib/third_party/apitools/base/py/base_api.py", line 737, in ProcessHttpResponse
+    self.__ProcessHttpResponse(method_config, http_response, request))
+  File "/Users/junxingmo/google-cloud-sdk/lib/third_party/apitools/base/py/base_api.py", line 604, in __ProcessHttpResponse
+    http_response, method_config=method_config, request=request)
+apitools.base.py.exceptions.HttpForbiddenError: HttpError accessing <https://dns.googleapis.com/dns/v1/projects/gke-eu-1/managedZones/example?alt=json>: response: <{'cache-control': 'private', 'content-length': '194', 'vary': 'Origin, X-Origin, Referer', 'alt-svc': 'h3-Q050=":443"; ma=2592000,h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=2592000,h3-T050=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"', 'server': 'ESF', 'transfer-encoding': 'chunked', 'content-type': 'application/json; charset=UTF-8', 'x-content-type-options': 'nosniff', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '0', 'status': '403', 'date': 'Wed, 21 Oct 2020 05:20:33 GMT', '-content-encoding': 'gzip'}>, content <{
+  "error": {
+    "code": 403,
+    "message": "Forbidden",
+    "errors": [
+      {
+        "message": "Forbidden",
+        "domain": "global",
+        "reason": "forbidden"
+      }
+    ]
+  }
+}
+>
+ERROR: (gcloud.dns.managed-zones.update) HTTPError 403: Forbidden
+
+2020-10-21 13:20:33 CST INFO    list vpc in Cloud DNS private-access zone
+NAME     DNS_NAME  NETWORK_URL
+example  example.  ['https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc1', 'https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc2']
+
+2020-10-21 13:20:35 CST INFO    clean up environment
+Deleted [https://dns.googleapis.com/dns/v1/projects/gke-eu-1/managedZones/example].
+Deleted [https://www.googleapis.com/compute/v1/projects/gke-eu-1/global/networks/vpc2].
